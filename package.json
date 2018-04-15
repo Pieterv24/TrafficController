@@ -1,0 +1,35 @@
+{
+  "name": "node_socket_test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon main.js",
+    "run": "node main.js"
+  },
+  "babel": {
+    "presets": [
+      "env",
+      "stage-1"
+    ],
+    "sourceMaps": true,
+    "retainLines": true
+  },
+  "dependencies": {
+    "sprintf-js": "1.1.1",
+    "lodash": "4.17.5"
+  },
+  "devDependencies": {
+    "babel-eslint": "8.2.2",
+    "babel-cli": "6.26.0",
+    "babel-preset-env": "1.6.1",
+    "babel-preset-stage-1": "6.24.1",
+    "eslint": "4.19.0",
+    "eslint-config-standard": "11.0.0",
+    "eslint-plugin-node": "6.0.1",
+    "eslint-plugin-import": "2.9.0",
+    "eslint-plugin-standard": "3.0.1",
+    "eslint-plugin-promise": "3.7.0",
+    "nodemon": "1.17.2"
+  }
+}

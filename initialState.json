@@ -1,0 +1,269 @@
+{
+  "bridge": {
+    "open": false,
+    "openSignalSend": false,
+    "lastOpening": {}
+  },
+  "lanes": [
+    {
+      "id": "1.1.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "secondaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "1.2.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "secondaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "1.3.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "secondaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "1.4.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "secondaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "1.5.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "secondaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "1.6.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "secondaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "1.7.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "secondaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "1.8.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "secondaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "1.9.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "secondaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "1.10.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "secondaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "1.11.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "secondaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "1.12.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "secondaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "1.13.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "secondaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "2.1.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "2.2.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "2.3.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "2.4.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "3.1.1",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "3.1.2",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "3.1.3",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "3.1.4",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "3.2.1",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "3.2.2",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "3.2.3",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "3.2.4",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "3.3.1",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "3.3.2",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "3.3.3",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "3.3.4",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "3.4.1",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "3.4.2",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "3.4.3",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "3.4.4",
+      "state": "red",
+      "primaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "4.1.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "secondaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    },
+    {
+      "id": "4.2.0",
+      "state": "red",
+      "primaryTrigger": false,
+      "secondaryTrigger": false,
+      "lastChange": {},
+      "weight": 1
+    }
+  ]
+}

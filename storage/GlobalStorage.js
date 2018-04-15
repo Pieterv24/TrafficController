@@ -1,0 +1,37 @@
+import Lane from '../models/Lane'
+import Bridge from '../models/Bridge'
+
+// import initialState from '../initialState.json'
+import ids from '../ids.json'
+
+let Data = {}
+let initRan = false
+
+class GlobalStorage {
+  static init () {
+    Data = {
+      bridge: new Bridge(),
+      lanes: []
+    }
+    ids.map(id => {
+      Data.lanes.push(new Lane(id))
+    })
+    initRan = true
+  }
+
+  static get Lanes () {
+    if (!initRan) {
+      this.init()
+    }
+    return Data.lanes
+  }
+
+  static get Bridge () {
+    if (!initRan) {
+      this.init()
+    }
+    return Data.bridge
+  }
+}
+
+export default GlobalStorage
