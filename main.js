@@ -4,6 +4,7 @@ import readline from 'readline'
 import Store from './storage/StorageInstance'
 import DataInHandler from './handlers/IncommingDataHandler'
 import DataOutHandler from './handlers/OutgoingDataHandler'
+import CarRouter from './logic/CarRouter';
 
 const port = 1234
 const ipAddress = 'localhost'
@@ -18,8 +19,10 @@ let server = net.createServer((socket) => {
   store.init()
   const dataInHandler = new DataInHandler(store)
   const dataOutHandler = new DataOutHandler(socket, store)
+  const carRouter = new CarRouter(socket, store)
 
   dataOutHandler.everythingRed()
+  carRouter.generateRedPriorityList()
 
   // is ran when line of data is received
   rl.on('line', (data) => {

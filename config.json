@@ -1,3 +1,4 @@
 {
-  "maxRedTime": 120000
+  "maxRedTime": 120000,
+  "minGreenTime": 10000
 }
