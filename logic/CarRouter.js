@@ -1,6 +1,7 @@
 import _ from 'lodash'
 
 import Lane from '../models/Lane'
+import dataOut from './OutgoingDataFactory'
 
 import matrix from '../conflictMatrix.json'
 import config from '../config.json'
@@ -10,6 +11,82 @@ class CarRouter {
     this.socket = socket
     this.store = store
     this.matrix = matrix
+
+    this.store.Lanes[0].primaryTrigger = true
+  }
+
+  doCycle () {
+    let changeLightArray = []
+    let prioritizedRedList = this.generateRedPriorityList()
+    changeLightArray = _.concat(changeLightArray, this.handleOranges(), this.handleCertainReds())
+    prioritizedRedList.map(light => {
+      let conflicts = _.find(this.matrix, {id: light.id})
+      let greenLights = this.getActiveList()
+      let conflits = _.filter(greenLights, gl => conflicts.blockedBy.includes(gl.id))
+      if (conflits.length > 0) {
+        conflicts.map(c => {
+          let conflict = this.handleConflict(c.id)
+          if (conflict !== undefined) {
+            changeLightArray.push(conflict)
+          }
+        })
+      } else {
+        let lightIndex = _.findIndex(this.store.Lanes, {id: light.id})
+        if (lightIndex !== -1) {
+          this.store.Lanes[lightIndex].state = 'green'
+          this.store.Lanes[lightIndex].lastLightChange = Date.now()
+          changeLightArray.push({id: light.id, status: 'green'})
+        }
+      }
+    })
+    let command = dataOut.getTrafficLightsResponse(changeLightArray)
+    this.socket.write(command + '\n')
+  }
+
+  handleConflict (id) {
+    let conflict = _.find(this.store.Lanes, {id: id})
+    if (conflict !== undefined) {
+      if (conflict.state === 'green' && Date.now() - conflict.lastLightChange > config.minGreenTime) {
+        let lightIndex = _.findIndex(this.store.Lanes, {id: conflict.id})
+        if (lightIndex !== -1) {
+          this.store.Lanes[lightIndex].state = 'green'
+          this.store.Lanes[lightIndex].lastLightChange = Date.now()
+          return {id: conflict.id, status: 'orange'}
+        }
+      }
+    }
+  }
+
+  handleOranges () {
+    let orangeList = _.filter(this.store.Lanes, l => l.state === 'orange')
+    let changeList = []
+    orangeList.map(o => {
+      if (Date.now() - o.lastLightChange >= config.orangeTime) {
+        let lightIndex = _.findIndex(this.store.Lanes, {id: o.id})
+        if (lightIndex !== -1) {
+          this.store.Lanes[lightIndex].state = 'red'
+          this.store.Lanes[lightIndex].lastLightChange = Date.now()
+          changeList.push({id: o.id, status: 'red'})
+        }
+      }
+    })
+    return changeList
+  }
+
+  handleCertainReds () {
+    let redList = this.getCertainRed()
+    let changeList = []
+    redList.map(o => {
+      if (Date.now() - o.lastLightChange >= config.orangeTime) {
+        let lightIndex = _.findIndex(this.store.Lanes, {id: o.id})
+        if (lightIndex !== -1) {
+          this.store.Lanes[lightIndex].state = 'orange'
+          this.store.Lanes[lightIndex].lastLightChange = Date.now()
+          changeList.push({id: o.id, status: 'orange'})
+        }
+      }
+    })
+    return changeList
   }
 
   generateRedPriorityList () {
@@ -20,6 +97,10 @@ class CarRouter {
       return light
     })
     return scoredRedLights
+  }
+
+  getActiveList () {
+    return _.filter(this.store.lanes, l => l.state === 'green' || l.state === 'orange')
   }
 
   getCertainRed () {

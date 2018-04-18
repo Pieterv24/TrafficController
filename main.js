@@ -30,7 +30,8 @@ let server = net.createServer((socket) => {
   })
 
   setInterval(() => {
-  }, 100)
+    carRouter.doCycle()
+  }, 1000)
 
   socket.on('close', () => {
     console.log('connection closed')
