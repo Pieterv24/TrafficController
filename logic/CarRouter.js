@@ -39,8 +39,10 @@ class CarRouter {
         }
       }
     })
-    let command = dataOut.getTrafficLightsResponse(changeLightArray)
-    this.socket.write(command + '\n')
+    if (changeLightArray.length > 0) {
+      let command = dataOut.getTrafficLightsResponse(changeLightArray)
+      this.socket.write(command + '\n')
+    }
   }
 
   handleConflict (id) {

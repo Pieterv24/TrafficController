@@ -34,6 +34,7 @@ let server = net.createServer((socket) => {
   }, 1000)
 
   socket.on('close', () => {
+    socket.end()
     console.log('connection closed')
   })
 
