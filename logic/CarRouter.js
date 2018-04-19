@@ -7,10 +7,11 @@ import matrix from '../conflictMatrix.json'
 import config from '../config.json'
 
 class CarRouter {
-  constructor (socket, store) {
+  constructor (socket, store, updateWindow) {
     this.socket = socket
     this.store = store
     this.matrix = matrix
+    this.updateWindow = updateWindow
 
     this.store.Lanes[0].primaryTrigger = true
   }
@@ -42,6 +43,7 @@ class CarRouter {
     if (changeLightArray.length > 0) {
       let command = dataOut.getTrafficLightsResponse(changeLightArray)
       this.socket.write(command + '\n')
+      this.updateWindow()
     }
   }
 
