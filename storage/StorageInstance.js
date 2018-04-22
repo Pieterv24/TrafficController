@@ -1,3 +1,4 @@
+import UniHelper from '../helpers/UnidiotifyHelper'
 import Lane from '../models/Lane'
 import Bridge from '../models/Bridge'
 
@@ -18,7 +19,8 @@ class StorageInstance {
       lanes: []
     }
     ids.map(id => {
-      this.data.lanes.push(new Lane(id))
+      let laneId = UniHelper.stringToLaneId(id)
+      this.data.lanes.push(new Lane(laneId))
     })
     this.initRan = true
   }

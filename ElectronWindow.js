@@ -8,6 +8,8 @@ class ElectronWindow {
     this.window = null
     this.store = store
     this.windowReady = false
+    this.dataOutHandler = undefined
+    this.carRouter = undefined
   }
 
   startWindow () {
@@ -24,7 +26,28 @@ class ElectronWindow {
     this.window.webContents.openDevTools()
     this.window.on('ready-to-show', () => {
       console.log('window is ready')
-      this.window.webContents.send('updateStore', this.store)
+      this.window.webContents.send('updateStore', this.store.data)
+      console.log('Window: ' + this.window.webContents.id + ' was created')
+
+      // Handle incomming stateChange messages
+      ipcMain.on('changeState', (sender, id) => {
+        if (sender.sender.webContents.id && this.window.webContents.id === sender.sender.webContents.id) {
+          console.log('Window: ' + this.window.webContents.id + ' returned: ' + id)
+          if (this.dataOutHandler !== undefined) {
+            this.dataOutHandler.toggleLight(id)
+          }
+        }
+      })
+
+      // Hanlde manual toggle
+      ipcMain.on('toggleManual', (sender, state) => {
+        if (sender.sender.webContents.id && this.window.webContents.id === sender.sender.webContents.id) {
+          if (this.carRouter !== undefined) {
+            console.log('Window: ' + this.window.webContents.id + ' turned manual to: ' + state)
+            this.carRouter.manual = state
+          }
+        }
+      })
       this.window.show()
       this.windowReady = true
     })
@@ -35,7 +58,7 @@ class ElectronWindow {
 
   updateStore () {
     if (this.windowReady) {
-      this.window.webContents.send('updateStore', this.store)
+      this.window.webContents.send('updateStore', this.store.data)
     }
   }
 

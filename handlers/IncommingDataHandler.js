@@ -43,20 +43,20 @@ class IncommingDataHandler {
 
   handleTrigger (dataObject, primary) {
     if (dataObject.triggered !== undefined && dataObject.id !== undefined) {
-      let fixedId = UniHelper.fixStringInternal(dataObject.id)
+      let fixedId = UniHelper.stringToLaneId(dataObject.id)
       let laneIndex = _.findIndex(this.store.Lanes, {'id': fixedId})
       if (laneIndex !== -1) {
         if (primary) {
           let currentState = this.store.Lanes[laneIndex].primaryTrigger
           if (currentState !== dataObject.triggered) {
             this.store.Lanes[laneIndex].lastTriggerChange = Date.now()
-            this.store.Lanes[laneIndex].primaryTrigger = dataObject.triggered
+            this.store.Lanes[laneIndex].primaryTrigger = JSON.parse(dataObject.triggered)
           }
         } else {
           let currentState = this.store.Lanes[laneIndex].secondaryTrigger
           if (currentState !== dataObject.triggered) {
             this.store.Lanes[laneIndex].lastTriggerChange = Date.now()
-            this.store.Lanes[laneIndex].secondaryTrigger = dataObject.triggered
+            this.store.Lanes[laneIndex].secondaryTrigger = JSON.parse(dataObject.triggered)
           }
         }
         console.log(this.store.Lanes[laneIndex])
@@ -67,6 +67,7 @@ class IncommingDataHandler {
   handleBridgeChange (dataObject) {
     if (dataObject.opened !== undefined) {
       if (this.store.Bridge.open !== dataObject.opened) {
+        this.store.Bridge.changing = false
         this.store.Bridge.open = dataObject.opened
         this.store.Bridge.lastChanged = Date.now()
       }

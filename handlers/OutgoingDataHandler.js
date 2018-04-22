@@ -1,28 +1,40 @@
-import OutgoingDataFactory from '../logic/OutgoingDataFactory'
-import LightData from '../models/lightData'
+import _ from 'lodash'
+
+import UniHelper from '../helpers/UnidiotifyHelper'
+import dataOut from '../logic/OutgoingDataFactory'
+import { LightData } from '../models'
 
 class OutgoingDataHandler {
-  constructor (socket, store) {
+  constructor (store, socket, updateWindow) {
     this.store = store
     this.socket = socket
+    this.updateWindow = updateWindow
   }
 
-  everythingRed () {
-    let lightDataArray = this.store.Lanes.map(ld => {
-      return new LightData(ld.id, ld.state)
-    })
-    console.log(lightDataArray)
-    let message = OutgoingDataFactory.getTrafficLightsResponse(lightDataArray)
-    this.socket.write(message + '\n')
+  toggleLight (id) {
+    let unidiotId = UniHelper.stringToLaneId(id)
+    let lightIndex = _.findIndex(this.store.Lanes, {id: unidiotId})
+    if (lightIndex !== -1) {
+      let state = this.nextColor(this.store.Lanes[lightIndex].state)
+      this.store.Lanes[lightIndex].state = state
+      this.store.Lanes[lightIndex].lastLightChange = Date.now()
+      let command = dataOut.getTrafficLightResponse(new LightData(unidiotId, state))
+      this.socket.write(command + '\n')
+      this.updateWindow()
+    }
   }
 
-  writeStoredState () {
-    let lightDataArray = this.store.Lanes.map(ld => {
-      return new LightData(ld.id, ld.state)
-    })
-    console.log(lightDataArray)
-    let message = OutgoingDataFactory.getTrafficLightsResponse(lightDataArray)
-    this.socket.write(message + '\n')
+  nextColor (color) {
+    switch (color) {
+      case 'red':
+        return 'green'
+      case 'green':
+        return 'orange'
+      case 'orange':
+        return 'red'
+      default:
+        return 'red'
+    }
   }
 }
 
