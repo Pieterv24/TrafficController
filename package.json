@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start": "nodemon main.js",
-    "startElectron": "PORT=5858 electron --debug --nolazy --require babel-register .",
+    "startElectron": "electron --nolazy --require babel-register .",
     "run": "node main.js"
   },
   "babel": {
