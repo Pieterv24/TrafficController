@@ -1,5 +1,6 @@
 import Lane from '../models/Lane'
 import Bridge from '../models/Bridge'
+import UniHelper from '../helpers/UnidiotifyHelper'
 
 // import initialState from '../initialState.json'
 import ids from '../ids.json'
@@ -14,7 +15,7 @@ class GlobalStorage {
       lanes: []
     }
     ids.map(id => {
-      Data.lanes.push(new Lane(id))
+      Data.lanes.push(new Lane(UniHelper.stringToLaneId(id)))
     })
     initRan = true
   }

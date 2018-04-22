@@ -1,6 +1,7 @@
 import _ from 'lodash'
 
-import Lane from '../models/Lane'
+import {Lane, LightData, LaneId} from '../models'
+import UniHelper from '../helpers/UnidiotifyHelper'
 import dataOut from './OutgoingDataFactory'
 
 import matrix from '../conflictMatrix.json'
@@ -12,50 +13,85 @@ class CarRouter {
     this.store = store
     this.matrix = matrix
     this.updateWindow = updateWindow
-
-    this.store.Lanes[0].primaryTrigger = true
+    this.manual = false
   }
 
   doCycle () {
-    let changeLightArray = []
-    let prioritizedRedList = this.generateRedPriorityList()
-    changeLightArray = _.concat(changeLightArray, this.handleOranges(), this.handleCertainReds())
-    prioritizedRedList.map(light => {
-      let conflicts = _.find(this.matrix, {id: light.id})
-      let greenLights = this.getActiveList()
-      let conflits = _.filter(greenLights, gl => conflicts.blockedBy.includes(gl.id))
-      if (conflits.length > 0) {
-        conflicts.map(c => {
-          let conflict = this.handleConflict(c.id)
-          if (conflict !== undefined) {
-            changeLightArray.push(conflict)
-          }
-        })
-      } else {
-        let lightIndex = _.findIndex(this.store.Lanes, {id: light.id})
-        if (lightIndex !== -1) {
-          this.store.Lanes[lightIndex].state = 'green'
-          this.store.Lanes[lightIndex].lastLightChange = Date.now()
-          changeLightArray.push({id: light.id, status: 'green'})
+    if (!this.manual) {
+      let changeLightArray = []
+      changeLightArray = _.concat(changeLightArray, this.handleOranges(), this.handleCertainReds())
+      let prioritizedRedList = this.generateRedPriorityList()
+      _.forEach(prioritizedRedList, (light) => {
+      // Detect 1.13.0 and ignore it
+        if (UniHelper.laneIdToString(light.id) === '1.13.0') {
+        // Is handled as continue
+          return true
         }
+        switch (light.id.typeId) {
+          case 4:
+          // Do boat stuff
+            break
+          case 1:
+          case 2:
+          case 3:
+          // Do light stuff
+            let handledLights = this.handleLights(light)
+            changeLightArray = _.concat(changeLightArray, handledLights)
+            break
+          default:
+          // continue
+            return true
+        }
+      })
+      if (changeLightArray.length > 0) {
+        let command = dataOut.getTrafficLightsResponse(changeLightArray)
+        this.socket.write(command + '\n')
+        this.updateWindow()
       }
-    })
-    if (changeLightArray.length > 0) {
-      let command = dataOut.getTrafficLightsResponse(changeLightArray)
-      this.socket.write(command + '\n')
-      this.updateWindow()
+    } else {
+      console.log('manual')
     }
   }
 
+  handleLights (light) {
+    let changeLightArray = []
+    // Get conflict reference from matrix
+    let conflictReference = _.find(this.matrix, {id: UniHelper.laneIdToString(light.id)})
+    // Get green lights
+    let greenLights = this.getActiveList()
+    // Get conflicting green lights
+    let conflicts = _.filter(greenLights, gl => conflictReference.blockedBy.includes(UniHelper.laneIdToString(gl.id)))
+
+    if (conflicts.length > 0) {
+      _.forEach(conflicts, c => {
+        let conflict = this.handleConflict(c.id)
+        if (conflict !== undefined) {
+          changeLightArray.push(conflict)
+        }
+      })
+    } else {
+      let lightIndex = _.findIndex(this.store.Lanes, {id: light.id})
+      if (lightIndex !== -1) {
+        this.store.Lanes[lightIndex].state = 'green'
+        this.store.Lanes[lightIndex].lastLightChange = Date.now()
+        changeLightArray.push(new LightData(light.id, 'green'))
+      }
+    }
+
+    return changeLightArray
+  }
+
   handleConflict (id) {
-    let conflict = _.find(this.store.Lanes, {id: id})
-    if (conflict !== undefined) {
-      if (conflict.state === 'green' && Date.now() - conflict.lastLightChange > config.minGreenTime) {
-        let lightIndex = _.findIndex(this.store.Lanes, {id: conflict.id})
-        if (lightIndex !== -1) {
-          this.store.Lanes[lightIndex].state = 'green'
-          this.store.Lanes[lightIndex].lastLightChange = Date.now()
-          return {id: conflict.id, status: 'orange'}
+    if (id instanceof LaneId) {
+      let conflict = _.find(this.store.Lanes, {id: id})
+      if (conflict !== undefined) {
+        if (conflict.state === 'green' && Date.now() - conflict.lastLightChange > config.minGreenTime) {
+          let lightIndex = _.findIndex(this.store.Lanes, {id: conflict.id})
+          if (lightIndex !== -1) {
+            this.store.Lanes[lightIndex].state = 'green'
+            this.store.Lanes[lightIndex].lastLightChange = Date.now()
+            return new LightData(conflict.id, 'orange')
+          }
         }
       }
     }
@@ -70,7 +106,7 @@ class CarRouter {
         if (lightIndex !== -1) {
           this.store.Lanes[lightIndex].state = 'red'
           this.store.Lanes[lightIndex].lastLightChange = Date.now()
-          changeList.push({id: o.id, status: 'red'})
+          changeList.push(new LightData(o.id, 'red'))
         }
       }
     })
@@ -86,7 +122,7 @@ class CarRouter {
         if (lightIndex !== -1) {
           this.store.Lanes[lightIndex].state = 'orange'
           this.store.Lanes[lightIndex].lastLightChange = Date.now()
-          changeList.push({id: o.id, status: 'orange'})
+          changeList.push(new LightData(o.id, 'orange'))
         }
       }
     })
@@ -108,7 +144,9 @@ class CarRouter {
   }
 
   getCertainRed () {
-    let certainRed = _.filter(this.store.Lanes, l => l.state === 'green' && l.primaryTrigger === false && l.secondaryTrigger === false && (Date.now() - l.lastTriggerChange > 10000))
+    let certainRed = _.filter(this.store.Lanes, l => {
+      return l.state === 'green' && l.primaryTrigger === false && l.secondaryTrigger === false && (Date.now() - l.lastTriggerChange > config.triggerDeactivate)
+    })
     return certainRed
   }
 
@@ -126,6 +164,24 @@ class CarRouter {
         return score
       }
     }
+  }
+
+  writeEverythingRed () {
+    let lightDataArray = this.store.Lanes.map(ld => {
+      return new LightData(ld.id, 'red')
+    })
+    console.log(lightDataArray)
+    let message = dataOut.getTrafficLightsResponse(lightDataArray)
+    this.socket.write(message + '\n')
+  }
+
+  writeStoredState () {
+    let lightDataArray = this.store.Lanes.map(ld => {
+      return new LightData(UniHelper.stringToLaneId(ld.id), ld.state)
+    })
+    console.log(lightDataArray)
+    let message = dataOut.getTrafficLightsResponse(lightDataArray)
+    this.socket.write(message + '\n')
   }
 }
 
