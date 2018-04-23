@@ -12,6 +12,7 @@ import DataOutHandler from './handlers/OutgoingDataHandler'
 
 const port = 1234
 const ipAddress = 'localhost'
+const electronDebug = false
 
 if (process.mas) app.setName('Traffic Controller')
 
@@ -24,7 +25,7 @@ function startController () {
     // create store for the session
     const store = new Store()
     store.init()
-    const sessionWindow = new ElectronWindow(app, store)
+    const sessionWindow = new ElectronWindow(app, store, electronDebug)
     sessionWindow.startWindow()
     const dataInHandler = new DataInHandler(store)
     const carRouter = new CarRouter(socket, store, () => { sessionWindow.updateStore() })

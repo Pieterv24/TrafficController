@@ -48,8 +48,6 @@ class CarRouter {
         this.socket.write(command + '\n')
         this.updateWindow()
       }
-    } else {
-      console.log('manual')
     }
   }
 

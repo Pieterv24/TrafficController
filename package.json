@@ -2,10 +2,9 @@
   "name": "traffic_controller",
   "version": "1.0.0",
   "main": "main.js",
-  "license": "MIT",
+  "license": "DoWhatever",
   "scripts": {
-    "start": "nodemon main.js",
-    "startElectron": "electron --nolazy --require babel-register .",
+    "start": "electron --nolazy --require babel-register .",
     "run": "node main.js"
   },
   "babel": {

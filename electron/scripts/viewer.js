@@ -8,8 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Add electron communication
   var ipcRenderer = require('electron').ipcRenderer
-  // Send electron ready signal
-  // ipcRenderer.send('did-finish-load')
 
   // Set event handler for store update
   ipcRenderer.on('updateStore', function (ev, data) {

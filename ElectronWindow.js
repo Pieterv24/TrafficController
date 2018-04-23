@@ -3,11 +3,12 @@ import path from 'path'
 import {BrowserWindow, ipcMain} from 'electron'
 
 class ElectronWindow {
-  constructor (app, store) {
+  constructor (app, store, debug) {
     this.app = app
     this.window = null
     this.store = store
     this.windowReady = false
+    this.debug = false
     this.dataOutHandler = undefined
     this.carRouter = undefined
   }
@@ -17,13 +18,15 @@ class ElectronWindow {
       width: 1080,
       minWidth: 680,
       height: 840,
-      title: this.app.getName(),
+      title: 'Traffic Controller',
       show: false
     }
 
     this.window = new BrowserWindow(windowOptions)
     this.window.loadURL(path.join('file://', __dirname, 'electron/index.html'))
-    this.window.webContents.openDevTools()
+    if (this.debug) {
+      this.window.webContents.openDevTools()
+    }
     this.window.on('ready-to-show', () => {
       console.log('window is ready')
       this.window.webContents.send('updateStore', this.store.data)
