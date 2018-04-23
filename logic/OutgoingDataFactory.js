@@ -46,7 +46,7 @@ class OutgoingDataFactory {
               let idiotId = UniHelper.laneIdToIdiotString(ls.id)
               response.trafficLights.push({
                 id: idiotId,
-                status: ls.status
+                lightStatus: ls.status
               })
             }
           }

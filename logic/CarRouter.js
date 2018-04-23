@@ -21,6 +21,7 @@ class CarRouter {
       let changeLightArray = []
       changeLightArray = _.concat(changeLightArray, this.handleOranges(), this.handleCertainReds())
       let prioritizedRedList = this.generateRedPriorityList()
+      prioritizedRedList = _.reverse(_.sortBy(prioritizedRedList, ['score']))
       _.forEach(prioritizedRedList, (light) => {
       // Detect 1.13.0 and ignore it
         if (UniHelper.laneIdToString(light.id) === '1.13.0') {
@@ -58,7 +59,9 @@ class CarRouter {
     // Get green lights
     let greenLights = this.getActiveList()
     // Get conflicting green lights
-    let conflicts = _.filter(greenLights, gl => conflictReference.blockedBy.includes(UniHelper.laneIdToString(gl.id)))
+    let conflicts = _.filter(greenLights, gl => {
+      return conflictReference.blockedBy.includes(UniHelper.laneIdToString(gl.id))
+    })
 
     if (conflicts.length > 0) {
       _.forEach(conflicts, c => {
@@ -86,7 +89,7 @@ class CarRouter {
         if (conflict.state === 'green' && Date.now() - conflict.lastLightChange > config.minGreenTime) {
           let lightIndex = _.findIndex(this.store.Lanes, {id: conflict.id})
           if (lightIndex !== -1) {
-            this.store.Lanes[lightIndex].state = 'green'
+            this.store.Lanes[lightIndex].state = 'orange'
             this.store.Lanes[lightIndex].lastLightChange = Date.now()
             return new LightData(conflict.id, 'orange')
           }
@@ -138,7 +141,7 @@ class CarRouter {
   }
 
   getActiveList () {
-    return _.filter(this.store.lanes, l => l.state === 'green' || l.state === 'orange')
+    return _.filter(this.store.Lanes, l => l.state === 'green' || l.state === 'orange')
   }
 
   getCertainRed () {
