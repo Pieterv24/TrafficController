@@ -4,9 +4,10 @@ import StorageInstance from '../storage/StorageInstance'
 import UniHelper from '../helpers/UnidiotifyHelper'
 
 class IncommingDataHandler {
-  constructor (store) {
+  constructor (store, updateWindow) {
     if (store instanceof StorageInstance) {
       this.store = store
+      this.updateWindow = updateWindow
     } else {
       throw new Error('supplied store must be an instance of StorageInstance')
     }
@@ -60,6 +61,7 @@ class IncommingDataHandler {
           }
         }
         console.log(this.store.Lanes[laneIndex])
+        this.updateWindow()
       }
     }
   }
@@ -70,6 +72,7 @@ class IncommingDataHandler {
         this.store.Bridge.changing = false
         this.store.Bridge.open = dataObject.opened
         this.store.Bridge.lastChanged = Date.now()
+        this.updateWindow()
       }
     }
   }

@@ -23,10 +23,9 @@ class ElectronWindow {
     }
 
     this.window = new BrowserWindow(windowOptions)
+    this.window.setMenu(null)
     this.window.loadURL(path.join('file://', __dirname, 'electron/index.html'))
-    if (this.debug) {
-      this.window.webContents.openDevTools()
-    }
+    this.window.webContents.openDevTools()
     this.window.on('ready-to-show', () => {
       console.log('window is ready')
       this.window.webContents.send('updateStore', this.store.data)

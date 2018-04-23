@@ -119,6 +119,7 @@ class CarRouter {
       this.store.Lanes[lightIndex].state = 'green'
       let lightCommand = dataOut.getTrafficLightResponse(new LightData(new LaneId(1, 13, 0), 'green'))
       this.socket.write(lightCommand + '\n')
+      this.updateWindow()
     }
   }
 
@@ -276,6 +277,7 @@ class CarRouter {
     console.log(lightDataArray)
     let message = dataOut.getTrafficLightsResponse(lightDataArray)
     this.socket.write(message + '\n')
+    this.updateWindow()
   }
 
   writeStoredState () {
@@ -285,6 +287,7 @@ class CarRouter {
     console.log(lightDataArray)
     let message = dataOut.getTrafficLightsResponse(lightDataArray)
     this.socket.write(message + '\n')
+    this.updateWindow()
   }
 }
 

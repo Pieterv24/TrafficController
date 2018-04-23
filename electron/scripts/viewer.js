@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
   var idDivs = document.getElementsByClassName('id')
   _.forEach(idDivs, (divObject) => {
     // console.log(divObject)
-    var id = divObject.id
+    var id = divObject.parentElement.id
+    console.log(divObject)
     divObject.addEventListener('click', () => {
       if (manualState) {
         ipcRenderer.send('changeState', id)
@@ -37,16 +38,33 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('you have to enable manual mode')
       }
     }, false)
-    // console.log(id)
   })
 }, false)
 
 // update store div colors
 function updateStore () {
+  console.log(store)
+
+  // Update Lanes
   _.forEach(store.lanes, lane => {
-    var idThiny = document.getElementById(laneIdToString(lane.id))
-    idThiny.style.backgroundColor = lane.state
+    var container = document.getElementById(laneIdToString(lane.id))
+    var idState = container.getElementsByClassName('id')[0]
+    var idPrimaryTrigger = container.getElementsByClassName('primaryTrigger')[0]
+    var idSecondaryTrigger = container.getElementsByClassName('secondaryTrigger')[0]
+    idState.style.backgroundColor = lane.state
+
+    if (idPrimaryTrigger) {
+      idPrimaryTrigger.textContent = lane.primaryTrigger ? '1: ON' : '1: OFF'
+    }
+
+    if (idSecondaryTrigger) {
+      idSecondaryTrigger.textContent = lane.secondaryTrigger ? '2: ON' : '2: OFF'
+    }
   })
+
+  // Update Bridge
+  console.log(store.bridge)
+  document.getElementById('bridgeStatus').textContent = getBridgeState(store.bridge.open, store.bridge.changing)
 }
 
 function updateManualToggle () {
@@ -57,6 +75,18 @@ function updateManualToggle () {
   } else {
     manualToggle.innerText = 'Manual: OFF'
     manualToggle.style.backgroundColor = 'red'
+  }
+}
+
+function getBridgeState(open, action) {
+  if (open && !action) {
+    return 'Open'
+  } else if (open && action) {
+    return 'Closing'
+  } else if (!open && !action) {
+    return 'Closed'
+  } else if (!open && action) {
+    return 'Opening'
   }
 }
 
