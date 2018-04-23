@@ -20,6 +20,7 @@ class CarRouter {
     if (!this.manual) {
       let changeLightArray = []
       changeLightArray = _.concat(changeLightArray, this.handleOranges(), this.handleCertainReds())
+      this.checkCloseBridge()
       let prioritizedRedList = this.generateRedPriorityList()
       prioritizedRedList = _.reverse(_.sortBy(prioritizedRedList, ['score']))
       _.forEach(prioritizedRedList, (light) => {
@@ -31,6 +32,10 @@ class CarRouter {
         switch (light.id.typeId) {
           case 4:
           // Do boat stuff
+            let boatLights = this.handleBridge(light)
+            if (boatLights instanceof Array) {
+              changeLightArray = _.concat(changeLightArray, boatLights)
+            }
             break
           case 1:
           case 2:
@@ -48,6 +53,87 @@ class CarRouter {
         let command = dataOut.getTrafficLightsResponse(changeLightArray)
         this.socket.write(command + '\n')
         this.updateWindow()
+      }
+    }
+  }
+
+  handleBridge (light) {
+    // Handle boats
+    if (this.store.Bridge.open && !this.store.Bridge.changing) {
+      let changeLightArray = []
+
+      let conflictReference = _.find(this.matrix, {id: UniHelper.laneIdToString(light.id)})
+      let activeBoatLights = _.filter(this.store.Lanes, l => (l.id === new LaneId(4, 1, 0) || l.id === new LaneId(4, 2, 0)) && (l.status === 'green' || l.status === 'orange'))
+
+      let conflicts = _.filter(activeBoatLights, gl => {
+        return conflictReference.blockedBy.includes(UniHelper.laneIdToString(gl.id))
+      })
+
+      if (conflicts.length > 0) {
+        _.forEach(conflicts, c => {
+          let conflict = this.handleConflict(c.id)
+          if (conflict !== undefined) {
+            changeLightArray.push(conflict)
+          }
+        })
+      } else {
+        let lightIndex = _.findIndex(this.store.Lanes, {id: light.id})
+        if (lightIndex !== -1) {
+          this.store.Lanes[lightIndex].state = 'green'
+          this.store.Lanes[lightIndex].lastLightChange = Date.now()
+          changeLightArray.push(new LightData(light.id, 'green'))
+        }
+      }
+
+      return changeLightArray
+    } else if (Date.now() - this.store.Bridge.lastChanged > config.minBridgeIntervalTime && !this.store.Bridge.changing) {
+      let command = dataOut.getBridgeResponse(true)
+      this.store.Bridge.changing = true
+      this.socket.write(command + '\n')
+      this.updateWindow()
+    }
+  }
+
+  checkCloseBridge () {
+    let boatStuff = _.filter(this.store.Lanes, l => {
+      return (UniHelper.laneIdToString(l.id) === '4.1.0' || UniHelper.laneIdToString(l.id) === '4.2.0') &&
+      l.primaryTrigger === false && l.secondaryTrigger === false && (Date.now() - l.lastTriggerChange > config.triggerDeactivate) &&
+      l.state === 'red'
+    })
+    if (boatStuff.length === 2 && !this.store.Bridge.changing) {
+      let command = dataOut.getBridgeResponse(false)
+      this.store.Bridge.changing = true
+      this.socket.write(command + '\n')
+      this.updateWindow()
+    }
+  }
+
+  scoreBridgeLight (lane) {
+    if (lane instanceof Lane) {
+      if (lane.primaryTrigger || lane.secondaryTrigger) {
+        let score = 0
+        score += lane.primaryTrigger ? 1 : 0
+        let redTime = Date.now() - lane.lastLightChange
+        let redTimePercentage = (redTime / (config.maxRedTime / 100)) / 100
+        score += 2 * redTimePercentage
+        score += lane.weight
+        return score
+      }
+    }
+  }
+
+  handleBridgeConflict (id) {
+    if (id instanceof LaneId) {
+      let conflict = _.find(this.store.Lanes, {id: id})
+      if (conflict !== undefined) {
+        if (conflict.state === 'green' && Date.now() - conflict.lastLightChange > (config.minGreenTime * 2)) {
+          let lightIndex = _.findIndex(this.store.Lanes, {id: conflict.id})
+          if (lightIndex !== -1) {
+            this.store.Lanes[lightIndex].state = 'orange'
+            this.store.Lanes[lightIndex].lastLightChange = Date.now()
+            return new LightData(conflict.id, 'orange')
+          }
+        }
       }
     }
   }
