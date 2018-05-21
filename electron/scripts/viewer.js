@@ -78,7 +78,7 @@ function updateManualToggle () {
   }
 }
 
-function getBridgeState(open, action) {
+function getBridgeState (open, action) {
   if (open && !action) {
     return 'Open'
   } else if (open && action) {

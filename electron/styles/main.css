@@ -43,6 +43,12 @@ body {
   margin-bottom: 2px;
 }
 
+.bikeAndPedestrianContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
 .bridge {
   text-align: center;
   background-color: beige;
