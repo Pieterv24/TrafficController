@@ -2,7 +2,9 @@
   "maxRedTime": 120000,
   "minGreenTime": 10000,
   "orangeTime": 5000,
-  "maxBridgeTime": 300000,
-  "minBridgeIntervalTime": 300000,
+  "maxBridgeTime":20000,
+  "minBridgeIntervalTime": 30000,
+  "minBikePedestrianTime": 30000,
+  "maxBikePedestrianTime": 20000,
   "triggerDeactivate": 10000
 }

@@ -51,6 +51,7 @@ class CarRouter {
       })
       if (changeLightArray.length > 0) {
         let command = dataOut.getTrafficLightsResponse(changeLightArray)
+        console.log(command)
         this.socket.write(command + '\n')
         this.updateWindow()
       }
@@ -258,13 +259,24 @@ class CarRouter {
     if (lane instanceof Lane) {
       if (lane.primaryTrigger || lane.secondaryTrigger) {
         let score = 0
-        score += lane.primaryTrigger ? 1 : 0
-        score += lane.secondaryTrigger ? 1 : 0
-        score += lane.primaryTrigger && lane.secondaryTrigger ? 1 : 0
-        let redTime = Date.now() - lane.lastLightChange
-        let redTimePercentage = (redTime / (config.maxRedTime / 100)) / 100
-        score += 2 * redTimePercentage
-        score += lane.weight
+        if (lane.id.typeId === 1) {
+          score += lane.primaryTrigger ? 1 : 0
+          score += lane.secondaryTrigger ? 1 : 0
+          score += lane.primaryTrigger && lane.secondaryTrigger ? 1 : 0
+          let redTime = Date.now() - lane.lastLightChange
+          let redTimePercentage = (redTime / (config.maxRedTime / 100)) / 100
+          score += 2 * redTimePercentage
+          score += lane.weight
+        } else if (lane.id.typeId === 2 || lane.id.typeId === 3) {
+          if (Date.now() - lane.lastLightChange >= config.minBikePedestrianTime) {
+            console.log('high score')
+            score += 100
+          }
+        } else if (lane.id.typeId === 4) {
+          if (Date.now() - lane.lastLightChange >= config.minBridgeIntervalTime) {
+            score += 100
+          }
+        }
         return score
       }
     }
@@ -274,7 +286,7 @@ class CarRouter {
     let lightDataArray = this.store.Lanes.map(ld => {
       return new LightData(ld.id, 'red')
     })
-    console.log(lightDataArray)
+    // console.log(lightDataArray)
     let message = dataOut.getTrafficLightsResponse(lightDataArray)
     this.socket.write(message + '\n')
     this.updateWindow()
@@ -284,7 +296,7 @@ class CarRouter {
     let lightDataArray = this.store.Lanes.map(ld => {
       return new LightData(UniHelper.stringToLaneId(ld.id), ld.state)
     })
-    console.log(lightDataArray)
+    // console.log(lightDataArray)
     let message = dataOut.getTrafficLightsResponse(lightDataArray)
     this.socket.write(message + '\n')
     this.updateWindow()

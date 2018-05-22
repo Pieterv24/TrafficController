@@ -2,6 +2,7 @@ import _ from 'lodash'
 
 import StorageInstance from '../storage/StorageInstance'
 import UniHelper from '../helpers/UnidiotifyHelper'
+import { LaneId } from '../models';
 
 class IncommingDataHandler {
   constructor (store, updateWindow) {
@@ -45,23 +46,38 @@ class IncommingDataHandler {
   handleTrigger (dataObject, primary) {
     if (dataObject.triggered !== undefined && dataObject.id !== undefined) {
       let fixedId = UniHelper.stringToLaneId(dataObject.id)
-      let laneIndex = _.findIndex(this.store.Lanes, {'id': fixedId})
-      if (laneIndex !== -1) {
+      let laneIndex = _.findIndex(this.store.Lanes, {'id': new LaneId(2, 0, 0)})
+      if ((fixedId.typeId === 2 || fixedId.typeId === 3) && laneIndex !== -1) {
         if (primary) {
-          let currentState = this.store.Lanes[laneIndex].primaryTrigger
-          if (currentState !== dataObject.triggered) {
+          if (this.store.Lanes[laneIndex].primaryTrigger !== dataObject.triggered) {
             this.store.Lanes[laneIndex].lastTriggerChange = Date.now()
             this.store.Lanes[laneIndex].primaryTrigger = JSON.parse(dataObject.triggered)
           }
         } else {
-          let currentState = this.store.Lanes[laneIndex].secondaryTrigger
-          if (currentState !== dataObject.triggered) {
+          if (this.store.Lanes[laneIndex].secondaryTrigger !== dataObject.triggered) {
             this.store.Lanes[laneIndex].lastTriggerChange = Date.now()
             this.store.Lanes[laneIndex].secondaryTrigger = JSON.parse(dataObject.triggered)
           }
         }
-        console.log(this.store.Lanes[laneIndex])
-        this.updateWindow()
+      } else {
+        let laneIndex = _.findIndex(this.store.Lanes, {'id': fixedId})
+        if (laneIndex !== -1) {
+          if (primary) {
+            let currentState = this.store.Lanes[laneIndex].primaryTrigger
+            if (currentState !== dataObject.triggered) {
+              this.store.Lanes[laneIndex].lastTriggerChange = Date.now()
+              this.store.Lanes[laneIndex].primaryTrigger = JSON.parse(dataObject.triggered)
+            }
+          } else {
+            let currentState = this.store.Lanes[laneIndex].secondaryTrigger
+            if (currentState !== dataObject.triggered) {
+              this.store.Lanes[laneIndex].lastTriggerChange = Date.now()
+              this.store.Lanes[laneIndex].secondaryTrigger = JSON.parse(dataObject.triggered)
+            }
+          }
+          // console.log(this.store.Lanes[laneIndex])
+          this.updateWindow()
+        }
       }
     }
   }

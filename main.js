@@ -11,7 +11,7 @@ import ElectronWindow from './ElectronWindow'
 import DataOutHandler from './handlers/OutgoingDataHandler'
 
 const port = 1234
-const ipAddress = 'localhost'
+const ipAddress = '0.0.0.0'
 const electronDebug = true
 
 if (process.mas) app.setName('Traffic Controller')

@@ -41,6 +41,16 @@ class OutgoingDataFactory {
 
       lightstatuses.map(ls => {
         if (ls instanceof LightData) {
+          if (ls.id.typeId === 2) {
+            this.getBikeandPedestrianIds().map((id) => {
+              if (ls.status === 'green' || ls.status === 'red' || ls.status === 'orange') {
+                response.trafficLights.push({
+                  id: id,
+                  lightStatus: ls.status
+                })
+              }
+            })
+          }
           if (_.indexOf(Ids, UniHelper.laneIdToString(ls.id)) !== -1) {
             if (ls.status === 'green' || ls.status === 'red' || ls.status === 'orange') {
               let idiotId = UniHelper.laneIdToIdiotString(ls.id)
@@ -54,6 +64,35 @@ class OutgoingDataFactory {
       })
 
       return JSON.stringify(response)
+    }
+  }
+
+  static getBikeandPedestrianIds () {
+    let ids = _.filter(Ids, (o) => {
+      let fixedId = UniHelper.stringToLaneId(o)
+      return fixedId.typeId === 3 || fixedId.typeId === 2
+    })
+
+    return ids
+  }
+
+  static getBikeandPedestrianResponse (lightStatus) {
+    let response = {
+      type: 'TrafficLightData',
+      trafficLights: []
+    }
+    if (lightStatus.id.typeId === 2) {
+      if (lightStatus instanceof LightData) {
+        _.foreach(Ids, (id) => {
+          let fixedId = UniHelper.stringToLaneId(id)
+          if (fixedId.typeId === 2 && fixedId.typeId === 3) {
+            response.trafficLights.push({
+              id: id,
+              lightStatus: lightStatus.status
+            })
+          }
+        })
+      }
     }
   }
 }
