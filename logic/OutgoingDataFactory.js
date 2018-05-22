@@ -43,9 +43,10 @@ class OutgoingDataFactory {
         if (ls instanceof LightData) {
           if (ls.id.typeId === 2) {
             this.getBikeandPedestrianIds().map((id) => {
+              let idiotId = UniHelper.fixStringExternal(id)
               if (ls.status === 'green' || ls.status === 'red' || ls.status === 'orange') {
                 response.trafficLights.push({
-                  id: id,
+                  id: idiotId,
                   lightStatus: ls.status
                 })
               }

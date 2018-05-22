@@ -21,8 +21,14 @@ class StorageInstance {
     }
     ids.map(id => {
       let laneId = UniHelper.stringToLaneId(id)
-      if (laneId.typeId !== 2 && laneId.typeId !== 3) {
+      if (laneId.typeId === 1) {
+        let lane = new Lane(laneId)
+        lane.state = laneId.lightId === 13 ? 'green' : 'red'
         this.data.lanes.push(new Lane(laneId))
+      } else if (laneId.typeId === 4) {
+        let lane = new Lane(laneId)
+        lane.weight = 0.1
+        this.data.lanes.push(lane)
       }
     })
     this.data.lanes.push(new Lane(new LaneId(2, 0, 0)))

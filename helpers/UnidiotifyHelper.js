@@ -47,6 +47,13 @@ class UnidiotifyHelper {
     let laneId = this.stringToLaneId(stringId)
     return this.laneIdToIdiotString(laneId)
   }
+
+  static compareIds (id1, id2) {
+    let idiotId1 = id1 instanceof LaneId ? this.laneIdToIdiotString(id1) : id1
+    let idiotId2 = id2 instanceof LaneId ? this.laneIdToIdiotString(id2) : id2
+
+    return idiotId1 === idiotId2
+  }
 }
 
 export default UnidiotifyHelper

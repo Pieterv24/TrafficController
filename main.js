@@ -34,7 +34,7 @@ function startController () {
     sessionWindow.dataOutHandler = dataOutHandler
     sessionWindow.carRouter = carRouter
 
-    carRouter.writeEverythingRed()
+    carRouter.writeEverythingRed(true)
 
     // is ran when line of data is received
     rl.on('line', (data) => {

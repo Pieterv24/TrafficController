@@ -51,7 +51,7 @@ class CarRouter {
       })
       if (changeLightArray.length > 0) {
         let command = dataOut.getTrafficLightsResponse(changeLightArray)
-        console.log(command)
+        // console.log(command)
         this.socket.write(command + '\n')
         this.updateWindow()
       }
@@ -65,8 +65,13 @@ class CarRouter {
       let changeLightArray = []
 
       let conflictReference = _.find(this.matrix, {id: UniHelper.laneIdToString(light.id)})
-      let activeBoatLights = _.filter(this.store.Lanes, l => (l.id === new LaneId(4, 1, 0) || l.id === new LaneId(4, 2, 0)) && (l.status === 'green' || l.status === 'orange'))
-
+      let activeBoatLights = _.filter(this.store.Lanes, l => {
+        // console.log(l.id)
+        // console.log(UniHelper.compareIds(l.id, new LaneId(4, 1, 0)))
+        // console.log(UniHelper.compareIds(l.id, new LaneId(4, 2, 0)))
+        return ((UniHelper.compareIds(l.id, new LaneId(4, 1, 0)) || UniHelper.compareIds(l.id, new LaneId(4, 2, 0))) && (l.state === 'green' || l.state === 'orange'))
+      })
+      console.log(activeBoatLights)
       let conflicts = _.filter(activeBoatLights, gl => {
         return conflictReference.blockedBy.includes(UniHelper.laneIdToString(gl.id))
       })
@@ -93,6 +98,7 @@ class CarRouter {
       let command = dataOut.getBridgeResponse(true)
       this.store.Bridge.changing = true
       this.socket.write(command + '\n')
+      // console.log(command)
       this.updateWindow()
     } else if (Date.now() - this.store.Bridge.lastChanged > config.minBridgeIntervalTime && !this.store.Bridge.changing) {
       // Red bridge light
@@ -113,6 +119,7 @@ class CarRouter {
       let command = dataOut.getBridgeResponse(false)
       this.store.Bridge.changing = true
       this.socket.write(command + '\n')
+      // console.log(command)
       this.updateWindow()
     }
     if (boatStuff.length === 2 && !this.store.Bridge.open && !this.store.Bridge.changing && _.find(this.store.Lanes, {id: new LaneId(1, 13, 0)}).state === 'red') {
@@ -269,7 +276,7 @@ class CarRouter {
           score += lane.weight
         } else if (lane.id.typeId === 2 || lane.id.typeId === 3) {
           if (Date.now() - lane.lastLightChange >= config.minBikePedestrianTime) {
-            console.log('high score')
+            // console.log('high score')
             score += 100
           }
         } else if (lane.id.typeId === 4) {
@@ -282,9 +289,13 @@ class CarRouter {
     }
   }
 
-  writeEverythingRed () {
+  writeEverythingRed (except13) {
     let lightDataArray = this.store.Lanes.map(ld => {
-      return new LightData(ld.id, 'red')
+      let lightData = new LightData(ld.id, 'red')
+      if (UniHelper.laneIdToIdiotString(ld.id) === '1.13') {
+        lightData.status = except13 ? 'green' : 'red'
+      }
+      return lightData
     })
     // console.log(lightDataArray)
     let message = dataOut.getTrafficLightsResponse(lightDataArray)

@@ -1,7 +1,7 @@
 {
-  "maxRedTime": 120000,
-  "minGreenTime": 10000,
-  "orangeTime": 5000,
+  "maxRedTime": 30000,
+  "minGreenTime": 5000,
+  "orangeTime": 2500,
   "maxBridgeTime":20000,
   "minBridgeIntervalTime": 30000,
   "minBikePedestrianTime": 30000,
