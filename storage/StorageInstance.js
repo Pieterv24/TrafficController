@@ -23,6 +23,9 @@ class StorageInstance {
       let laneId = UniHelper.stringToLaneId(id)
       if (laneId.typeId === 1) {
         let lane = new Lane(laneId)
+        if (laneId.lightId === 5) {
+          lane.weight = 2
+        }
         lane.state = laneId.lightId === 13 ? 'green' : 'red'
         this.data.lanes.push(new Lane(laneId))
       } else if (laneId.typeId === 4) {

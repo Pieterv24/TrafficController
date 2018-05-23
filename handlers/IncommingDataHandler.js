@@ -2,7 +2,7 @@ import _ from 'lodash'
 
 import StorageInstance from '../storage/StorageInstance'
 import UniHelper from '../helpers/UnidiotifyHelper'
-import { LaneId } from '../models';
+import { LaneId } from '../models'
 
 class IncommingDataHandler {
   constructor (store, updateWindow) {

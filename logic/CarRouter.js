@@ -24,14 +24,14 @@ class CarRouter {
       let prioritizedRedList = this.generateRedPriorityList()
       prioritizedRedList = _.reverse(_.sortBy(prioritizedRedList, ['score']))
       _.forEach(prioritizedRedList, (light) => {
-      // Detect 1.13.0 and ignore it
-        if (UniHelper.laneIdToString(light.id) === '1.13.0') {
+        // Detect 1.13.0 and ignore it
+        if (UniHelper.compareIds(light.id, new LaneId(1, 13, 0))) {
         // Is handled as continue
           return true
         }
         switch (light.id.typeId) {
           case 4:
-          // Do boat stuff
+            // Do boat stuff
             let boatLights = this.handleBridge(light)
             if (boatLights instanceof Array) {
               changeLightArray = _.concat(changeLightArray, boatLights)
@@ -40,7 +40,7 @@ class CarRouter {
           case 1:
           case 2:
           case 3:
-          // Do light stuff
+            // Do light stuff
             let handledLights = this.handleLights(light)
             changeLightArray = _.concat(changeLightArray, handledLights)
             break
@@ -90,16 +90,21 @@ class CarRouter {
       }
 
       return changeLightArray
-    } else if (Date.now() - this.store.Bridge.lastChanged > config.minBridgeIntervalTime && !this.store.Bridge.changing && this.store.Lanes[bridgeLightIndex].state === 'red') {
+    } else if (!this.store.Bridge.open &&
+        Date.now() - this.store.Bridge.lastChanged > config.minBridgeIntervalTime &&
+        !this.store.Bridge.changing &&
+        this.store.Lanes[bridgeLightIndex].state === 'red' &&
+        Date.now() - this.store.Lanes[bridgeLightIndex].lastLightChange > 3000) {
       // Open bridge
       let command = dataOut.getBridgeResponse(true)
       this.store.Bridge.changing = true
       this.socket.write(command + '\n')
       // console.log(command)
       this.updateWindow()
-    } else if (Date.now() - this.store.Bridge.lastChanged > config.minBridgeIntervalTime && !this.store.Bridge.changing) {
+    } else if (Date.now() - this.store.Bridge.lastChanged > config.minBridgeIntervalTime && !this.store.Bridge.changing && this.store.Lanes[bridgeLightIndex].state === 'green') {
       // Red bridge light
       this.store.Lanes[bridgeLightIndex].state = 'red'
+      this.store.Lanes[bridgeLightIndex].lastLightChange = Date.now()
       this.updateWindow()
       return [new LightData(new LaneId(1, 13, 0), 'red')]
     }
@@ -107,11 +112,11 @@ class CarRouter {
 
   checkCloseBridge () {
     let boatStuff = _.filter(this.store.Lanes, l => {
-      return ((UniHelper.compareIds(l.id, '4.1.0') || UniHelper.compareIds(l.id, '4.2.0')))//  &&
-      // (((l.primaryTrigger === false && l.secondaryTrigger === false) && (Date.now() - l.lastTriggerChange > config.triggerDeactivate) &&
-      // l.state === 'red') || (Date.now() - this.store.Bridge.lastChanged > config.maxBridgeTime)))
+      return ((UniHelper.compareIds(l.id, new LaneId(4, 1, 0)) || UniHelper.compareIds(l.id, new LaneId(4, 2, 0))) &&
+      (((l.primaryTrigger === false && l.secondaryTrigger === false) && (Date.now() - l.lastTriggerChange > config.triggerDeactivate)) ||
+      ((l.state === 'red') && (Date.now() - this.store.Bridge.lastChanged > config.maxBridgeTime))))
     })
-    console.log(boatStuff.length)
+    // console.log(boatStuff.length)
     if (boatStuff.length === 2 && !this.store.Bridge.changing && this.store.Bridge.open) {
       // Close bridge
       let command = dataOut.getBridgeResponse(false)
@@ -120,9 +125,11 @@ class CarRouter {
       // console.log(command)
       this.updateWindow()
     }
-    if (boatStuff.length === 2 && !this.store.Bridge.open && !this.store.Bridge.changing && _.find(this.store.Lanes, {id: new LaneId(1, 13, 0)}).state === 'red') {
+    if (!this.store.Bridge.open && !this.store.Bridge.changing &&
+        _.find(this.store.Lanes, {id: new LaneId(1, 13, 0)}).state === 'red') {
       let lightIndex = _.findIndex(this.store.Lanes, {id: new LaneId(1, 13, 0)})
       this.store.Lanes[lightIndex].state = 'green'
+      this.store.Lanes[lightIndex].lastLightChange = Date.now()
       let lightCommand = dataOut.getTrafficLightResponse(new LightData(new LaneId(1, 13, 0), 'green'))
       this.socket.write(lightCommand + '\n')
       this.updateWindow()
@@ -225,7 +232,8 @@ class CarRouter {
     let redList = this.getCertainRed()
     let changeList = []
     redList.map(o => {
-      if (UniHelper.laneIdToString(o.id) !== '1.13.0') {
+      if (!UniHelper.compareIds(o.id, new LaneId(1, 13, 0))) {
+        // console.log(o.id)
         if (Date.now() - o.lastLightChange >= config.orangeTime) {
           let lightIndex = _.findIndex(this.store.Lanes, {id: o.id})
           if (lightIndex !== -1) {
@@ -255,7 +263,8 @@ class CarRouter {
 
   getCertainRed () {
     let certainRed = _.filter(this.store.Lanes, l => {
-      return l.state === 'green' && l.primaryTrigger === false && l.secondaryTrigger === false && (Date.now() - l.lastTriggerChange > config.triggerDeactivate)
+      return ((l.state === 'green' && l.primaryTrigger === false && l.secondaryTrigger === false && (Date.now() - l.lastTriggerChange > config.triggerDeactivate)) ||
+      (Date.now() - l.lastLightChange > config.maxRedTime))
     })
     return certainRed
   }
@@ -290,12 +299,15 @@ class CarRouter {
   writeEverythingRed (except13) {
     let lightDataArray = this.store.Lanes.map(ld => {
       let lightData = new LightData(ld.id, 'red')
-      if (UniHelper.laneIdToIdiotString(ld.id) === '1.13') {
+      if (UniHelper.compareIds(ld.id, new LaneId(1, 13, 0))) {
         lightData.status = except13 ? 'green' : 'red'
+        let index = _.findIndex(this.store.Lanes, (a) => {
+          return UniHelper.compareIds(a.id, new LaneId(1, 13, 0))
+        })
+        this.store.Lanes[index].state = except13 ? 'green' : 'red'
       }
       return lightData
     })
-    // console.log(lightDataArray)
     let message = dataOut.getTrafficLightsResponse(lightDataArray)
     this.socket.write(message + '\n')
     this.updateWindow()
