@@ -61,17 +61,14 @@ class CarRouter {
   handleBridge (light) {
     let bridgeLightIndex = _.findIndex(this.store.Lanes, {id: new LaneId(1, 13, 0)})
     // Handle boats
-    if (this.store.Bridge.open && !this.store.Bridge.changing) {
+    if (this.store.Bridge.open && !this.store.Bridge.changing && Date.now() - this.store.Bridge.lastChanged < config.maxBridgeTime) {
       let changeLightArray = []
 
       let conflictReference = _.find(this.matrix, {id: UniHelper.laneIdToString(light.id)})
       let activeBoatLights = _.filter(this.store.Lanes, l => {
-        // console.log(l.id)
-        // console.log(UniHelper.compareIds(l.id, new LaneId(4, 1, 0)))
-        // console.log(UniHelper.compareIds(l.id, new LaneId(4, 2, 0)))
         return ((UniHelper.compareIds(l.id, new LaneId(4, 1, 0)) || UniHelper.compareIds(l.id, new LaneId(4, 2, 0))) && (l.state === 'green' || l.state === 'orange'))
       })
-      console.log(activeBoatLights)
+      // console.log(activeBoatLights)
       let conflicts = _.filter(activeBoatLights, gl => {
         return conflictReference.blockedBy.includes(UniHelper.laneIdToString(gl.id))
       })
@@ -110,10 +107,11 @@ class CarRouter {
 
   checkCloseBridge () {
     let boatStuff = _.filter(this.store.Lanes, l => {
-      return (UniHelper.laneIdToString(l.id) === '4.1.0' || UniHelper.laneIdToString(l.id) === '4.2.0') &&
-      l.primaryTrigger === false && l.secondaryTrigger === false && (Date.now() - l.lastTriggerChange > config.triggerDeactivate) &&
-      l.state === 'red'
+      return ((UniHelper.compareIds(l.id, '4.1.0') || UniHelper.compareIds(l.id, '4.2.0')))//  &&
+      // (((l.primaryTrigger === false && l.secondaryTrigger === false) && (Date.now() - l.lastTriggerChange > config.triggerDeactivate) &&
+      // l.state === 'red') || (Date.now() - this.store.Bridge.lastChanged > config.maxBridgeTime)))
     })
+    console.log(boatStuff.length)
     if (boatStuff.length === 2 && !this.store.Bridge.changing && this.store.Bridge.open) {
       // Close bridge
       let command = dataOut.getBridgeResponse(false)

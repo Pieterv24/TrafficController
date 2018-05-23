@@ -49,6 +49,10 @@ body {
   margin-bottom: 2px;
 }
 
+#bike-pedestrian-status {
+  height: 20px;
+}
+
 .bridge {
   text-align: center;
   background-color: beige;
