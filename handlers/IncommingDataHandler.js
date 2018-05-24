@@ -88,6 +88,11 @@ class IncommingDataHandler {
         this.store.Bridge.changing = false
         this.store.Bridge.open = dataObject.opened
         this.store.Bridge.lastChanged = Date.now()
+        if (dataObject.opened) {
+          this.store.Bridge.lastOpened = Date.now()
+        } else {
+          this.store.Bridge.lastClosed = Date.now()
+        }
         this.updateWindow()
       }
     }
