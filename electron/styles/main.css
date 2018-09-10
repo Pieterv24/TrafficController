@@ -1,0 +1,61 @@
+body {
+
+}
+
+.carIdContainer {
+
+}
+
+.id-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.id {
+  text-align: center;
+  background-color: red;
+  /*width: 33.33%;*/
+  flex-grow: 1;
+  flex-basis: 0;
+}
+
+.primaryTrigger {
+  /*width: 33.33%;*/
+  text-align: center;
+  color: white;
+  background-color: blue;
+  flex-grow: 1;
+  flex-basis: 0;
+}
+
+.secondaryTrigger {
+  /*width: 33.33%;*/
+  text-align: center;
+  background-color: cyan;
+  flex-grow: 1;
+  flex-basis: 0;
+}
+
+.bridge-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.bikeAndPedestrianContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+#bike-pedestrian-status {
+  height: 20px;
+}
+
+.bridge {
+  text-align: center;
+  background-color: beige;
+  flex-grow: 1;
+  flex-basis: 0;
+}

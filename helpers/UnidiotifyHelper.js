@@ -20,6 +20,14 @@ class UnidiotifyHelper {
 
   static laneIdToString (laneId) {
     if (laneId instanceof LaneId) {
+      return sprintf('%(typeId)s.%(lightId)s.%(identityId)s', laneId)
+    } else {
+      throw new Error('laneId must be an instance of the LaneId model')
+    }
+  }
+
+  static laneIdToIdiotString (laneId) {
+    if (laneId instanceof LaneId) {
       if (laneId.typeId === 3) {
         return sprintf('%(typeId)s.%(lightId)s.%(identityId)s', laneId)
       } else {
@@ -37,7 +45,14 @@ class UnidiotifyHelper {
 
   static fixStringExternal (stringId) {
     let laneId = this.stringToLaneId(stringId)
-    return this.laneIdToString(laneId)
+    return this.laneIdToIdiotString(laneId)
+  }
+
+  static compareIds (id1, id2) {
+    let idiotId1 = id1 instanceof LaneId ? this.laneIdToIdiotString(id1) : id1
+    let idiotId2 = id2 instanceof LaneId ? this.laneIdToIdiotString(id2) : id2
+
+    return idiotId1 === idiotId2
   }
 }
 

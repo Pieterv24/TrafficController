@@ -1,10 +1,10 @@
 {
-  "name": "node_socket_test",
+  "name": "traffic_controller",
   "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
+  "main": "main.js",
+  "license": "DoWhatever",
   "scripts": {
-    "start": "nodemon main.js",
+    "start": "electron --nolazy --require babel-register .",
     "run": "node main.js"
   },
   "babel": {
@@ -16,21 +16,24 @@
     "retainLines": true
   },
   "dependencies": {
+    "bootstrap": "^4.1.0",
     "lodash": "4.17.5",
     "npm": "^5.8.0",
     "sprintf-js": "1.1.1"
   },
   "devDependencies": {
-    "babel-eslint": "8.2.2",
     "babel-cli": "6.26.0",
+    "babel-eslint": "8.2.2",
     "babel-preset-env": "1.6.1",
     "babel-preset-stage-1": "6.24.1",
+    "electron": "^1.8.4",
+    "electron-packager": "^12.0.1",
     "eslint": "4.19.0",
     "eslint-config-standard": "11.0.0",
-    "eslint-plugin-node": "6.0.1",
     "eslint-plugin-import": "2.9.0",
-    "eslint-plugin-standard": "3.0.1",
+    "eslint-plugin-node": "6.0.1",
     "eslint-plugin-promise": "3.7.0",
+    "eslint-plugin-standard": "3.0.1",
     "nodemon": "1.17.2"
   }
 }
